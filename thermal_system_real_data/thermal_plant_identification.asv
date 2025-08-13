@@ -1,0 +1,115 @@
+
+%clc; clear;
+dt = 0.1; %%%% PLC cycle time [s]
+
+%%%%%%%%%%%%%% IMPORT DATA from text file
+data1 = readtable('25_percent_U.txt');
+index1 = data1.D15;
+
+offset_Y1_Temp = 25.5;
+Y1 = data1.D20 - offset_Y1_Temp;
+U1 = data1.D30;
+
+data2 = readtable('50_percent_U.txt');
+index2 = data2.D15;
+
+offset_Y2_Temp = 24.3;
+Y2 = data2.D20 - offset_Y2_Temp;
+U2 = data2.D30;
+
+
+data2 = readtable('50_percent_U.txt');
+index2 = data2.D15;
+
+
+
+t1 = index1*dt; %%%%% time vectors [s]
+t2 = index2*dt;
+t3 = index3*dt;
+
+
+
+%%%%%%%%%% plot raw offset data
+% figure(1)
+% plot(t1,U1,t1,Y1);
+% title('Step response at 25% PWM duty cycle');
+% xlabel('Time [s]');
+% ylabel('Temperature [°C]');
+% 
+% figure(2)
+% plot(t2,U2,t2,Y2);
+% title('Step response at 50% PWM duty cycle');
+% xlabel('Time [s]');
+% ylabel('Temperature [°C]');
+
+
+
+%%%%%%%%%% system identification 
+
+%%%% data 1
+data_id1 = iddata(Y1,U1,dt)
+
+samples_delay_U1 = 562
+samples_delay_Y1 = 580
+samples_delay_1 = samples_delay_Y1-samples_delay_U1; %%% 18 samples
+
+Y1_no_delay = Y1(samples_delay_Y1-1:end);
+U1_no_delay = U1(samples_delay_U1-1:end-samples_delay_1);
+index1 = index1(1:end-samples_delay_Y1+2);
+
+%%%%% data2
+
+data_id2 = iddata(Y2,U2,dt);
+samples_delay_U2 = 83
+samples_delay_Y2 = 112
+samples_delay_2 = samples_delay_Y2-samples_delay_U2; %%% 18 samples
+
+Y2_no_delay = Y2(samples_delay_Y2-1:end);
+U2_no_delay = U2(samples_delay_U2-1:end-samples_delay_2);
+index2 = index2(1:end-samples_delay_Y2+2);
+
+
+% 
+% figure(3)
+% plot(index1, Y1_no_delay, index1, U1_no_delay);
+% 
+% figure(4)
+% plot(index2, Y2_no_delay, index2, U2_no_delay);
+% 
+
+data_id1_offset = iddata(Y1_no_delay,U1_no_delay,dt);
+
+
+
+
+%%%%% delay components
+s = tf('s');
+delay_1 = exp( -dt * samples_delay_1 * s );
+delay_2 = exp(-dt * samples_delay_2 * s);
+
+
+
+%Gss_est1 = ssest(data_id1_offset,1:10)
+%G_est1 = series(tf(Gss_est1), delay_1)
+
+
+%Gss_est2 = ssest(data_id1_offset,1:10)
+%G_est2 = series(tf(Gss_est2), delay_2)
+
+%G_est2_manual = tf(0.003100, [1 0.001838]);
+
+%G_est2_manual = tf(0.0031200, [1 0.001900]);
+G_est2_manual = tf(0.0028500, [1 0.001700]); %% best so far
+
+G_est2_manual = series(G_est2_manual, delay_2)
+
+
+
+figure(5)
+compare(data_id1,G_est1)
+figure(6)
+subplot(1,2,1)
+compare(data_id1, G_est2_manual)
+
+subplot(1,2,2);
+compare(data_id2, G_est2_manual)
