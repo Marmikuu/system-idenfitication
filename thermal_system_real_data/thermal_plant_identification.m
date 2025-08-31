@@ -1,5 +1,5 @@
 
-%clc; clear;
+clc; clear;
 dt = 0.1; %%%% PLC cycle time [s]
 
 %%%%%%%%%%%%%% IMPORT DATA from text file
@@ -10,6 +10,8 @@ offset_Y1_Temp = 25.5;
 Y1 = data1.D20 - offset_Y1_Temp;
 U1 = data1.D30;
 
+
+%%%%%%%%% DATA SET 2. 
 data2 = readtable('50_percent_U.txt');
 index2 = data2.D15;
 
@@ -17,6 +19,7 @@ offset_Y2_Temp = 24.3;
 Y2 = data2.D20 - offset_Y2_Temp;
 U2 = data2.D30;
 
+%%%%%%%%%%%%%% DATA SET 3
 
 % data3 = readtable('cooling_data.txt');
 % index3 = data3.D15;
@@ -25,10 +28,20 @@ U2 = data2.D30;
 % U2 = data2.D30;
 
 
-t1 = index1*dt; %%%%% time vectors [s]
+%%%%%%%%%%%%% DATA SET 4
+data4 = readtable('100_percent_U.txt');
+index4 = data4.D15;
+
+offset_Y4_Temp = 26.9;
+Y4 = data4.D20 - offset_Y4_Temp;
+U4 = data4.D30;
+
+
+%%%%% time vectors [s]
+t1 = index1*dt; 
 t2 = index2*dt;
 % t3 = index3*dt;
-
+t4 = index4*dt;
 
 
 %%%%%%%%%% plot raw offset data
@@ -44,6 +57,11 @@ t2 = index2*dt;
 % xlabel('Time [s]');
 % ylabel('Temperature [°C]');
 
+% figure(3)
+% plot(t4,U4,t4,Y4);
+% title('Step response at 100% PWM duty cycle');
+% xlabel('Time [s]');
+% ylabel('Temperature [°C]');
 
 
 %%%%%%%%%% system identification 
@@ -71,13 +89,17 @@ U2_no_delay = U2(samples_delay_U2-1:end-samples_delay_2);
 index2 = index2(1:end-samples_delay_Y2+2);
 
 
-% 
+%%%% data 4
+data_id4 = iddata(Y4,U4,dt)
+
+
+
 % figure(3)
 % plot(index1, Y1_no_delay, index1, U1_no_delay);
 % 
 % figure(4)
 % plot(index2, Y2_no_delay, index2, U2_no_delay);
-% 
+
 
 data_id1_offset = iddata(Y1_no_delay,U1_no_delay,dt);
 
@@ -105,13 +127,25 @@ G_est2_manual = tf(0.0028500, [1 0.001700]); %% best so far
 
 G_est2_manual = series(G_est2_manual, delay_2)
 
+mhw1 = nlhw(data_id2, [40 12 1], idPiecewiseLinear, idPiecewiseLinear);
 
+%plot(mhw1)
+
+
+% if exist('feedforwardnet','file') == 2 %% Run only if Deep Learning Toolbox exists
+%     ff = feedforwardnet([5 20]); %% feedforward network
+%     ff.layers{2}.transferFcn = 'radbas';
+%     ff.trainParam.epochs = 10; %% how many epochs does the network use
+% 
+%     %%% Create a neural network mapping function that wraps
+%     %%%% the feedforward network
+%     OutputFcn = idFeedforwardNetwork(ff);
+%     mn1 = nlarx(data_id2, [5 1 3], OutputFcn); %%% estimate network parameters
+%     compare(data_id2,mn1) %%% compare fit to estimation data
+% end
 
 figure(5)
-compare(data_id1,G_est1)
+compare(data_id2,mhw1)
 figure(6)
-subplot(1,2,1)
-compare(data_id1, G_est2_manual)
-
-subplot(1,2,2);
-compare(data_id2, G_est2_manual)
+compare(data_id1, G_est2_manual,mhw1)
+figure(7)
