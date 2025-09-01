@@ -8,7 +8,7 @@ In fact, it is some sort of "my record" of the learning process in system identi
 
 Why learning system identification? Because it will come in handy in my other projects which use "model-based" approach: 
 
--State of Charge (SoC) Estimation with EKF
+- State of Charge (SoC) Estimation with EKF
 
 - My final year project of which part is comparision of different automatic control algorithms implemented on a PLC controller - it's easier to identify model and then develop software with simulation. Then I validate the control software on the real plant;
 
