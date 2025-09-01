@@ -7,7 +7,8 @@
 	thermocouple at the output. The input is the voltage over the heating 
 	device (a mesh of resistor wires)."
 Inputs:
-	u: voltage of the heating device 
+	u: voltage of the heating device
+ 
 Outputs:
 	y: output air temperature 
 
@@ -20,11 +21,11 @@ It was divided to estimation and validation data sets. The independent validatio
 Results and conclusion:
 
 I've tried different approaches and methods;
-Hammerstein-Wiener, DL nlarx, transfer functions, etc - more description was provided in Matlab LiveScript file - it can be re-run and more information will be available - here's just an overview in a nutshell;
+Hammerstein-Wiener, DL nlarx, transfer functions, etc - more description was provided in Matlab LiveScript file with some code - it can be re-run for more information;
 ![Results](Images/results1_all.png)
 
 
-It turns out that the estimated models fit to the validation data at 80%;
+It turns out that the estimated models achieved about 85% fit to the validation data. The DL nlarx model and 'simple' transfer function with time delay have achieved the best performance at around 89% fit;
 
 
 
