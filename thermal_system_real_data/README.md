@@ -1,4 +1,4 @@
-# system-idenfitication
+# Real thermal system
 In this example, I will attempt to identify real thermal plant - it was controlled by Mitsubishi FX5CPU PLC in a laboratory setting;
 
 The real plant consist of a metal sheet enclosure with Pt100 temperature sensor and a hot-end heater controlled with PWM signal through SSR(solid state relay);
@@ -12,8 +12,7 @@ Results and conclusion:
 I've tried different approaches and methods, but it turned out that:
 
 - Estimated transfer function with delay does not fit to the validation data well. As transfer functions usually work well with Linear Time-Invariant systems (LTI), they do struggle with nonlinear dynamics;
-![Results 1 - tf](Images/img2_transfer_function.png)
-![Results 1 - tf](Images/img2_transfer_function_2.png)
+![Results 1 - tf](Images/img2_transfer_function.png) ![Results 1 - tf](Images/img3_transfer_function_2.png)
 
 - nlarx model with DeepLearning Toolbox worked well. The fit to the validation data tends to be above 90% and the system's step response is stable and it looks like 100% PWM duty cycle respose (in fact, it's just step response);
 ![Results 2 - DL](Images/results2.png)
